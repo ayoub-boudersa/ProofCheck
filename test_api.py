@@ -35,4 +35,18 @@ response = client.models.generate_content(
     contents=prompt
 )
 
-print(response.text)
+raw_text = response.text.strip()
+
+if raw_text.startswith("```"):
+    raw_text = raw_text.split("```")[1].strip()
+    if raw_text.startswith("json"):
+        raw_text = raw_text[4:]
+    raw_text = raw_text.strip()
+
+try:
+    result = json.loads(raw_text)
+    print(result)
+except json.JSONDecodeError:
+    print("Couldn't parse response as JSON:")
+    print(raw_text)
+
