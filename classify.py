@@ -1,11 +1,46 @@
 import os
 import json
+import difflib
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+GUESSES_FILE = "guesses.jsonl"
+
+
+def load_past_guesses():
+    if not os.path.exists(GUESSES_FILE):
+        return []
+    past = []
+    with open(GUESSES_FILE) as f:
+        for line in f:
+            past.append(json.loads(line))
+    return past
+
+
+def find_similar_guess(trace, past_guesses, threshold=0.9):
+    for guess in past_guesses:
+        similarity = difflib.SequenceMatcher(None, trace, guess["trace"]).ratio()
+        if similarity >= threshold:
+            return guess
+    return None
+
+
+def log_guess(test_name, trace, result, from_memory):
+    entry = {
+        "test_name": test_name,
+        "trace": trace,
+        "category": result["category"],
+        "confidence": result["confidence"],
+        "reason": result["reason"],
+        "from_memory": from_memory,
+    }
+    with open(GUESSES_FILE, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
 
 def classify_failure(test_name, trace):
     prompt = f"""You are analyzing a failed pytest test. Classify it into exactly one category.
@@ -49,14 +84,31 @@ with open("report.json") as f:
 
 failed_tests = [t for t in data["results"]["tests"] if t["status"] == "failed"]
 
+past_guesses = load_past_guesses()
+
 for test in failed_tests:
-    result = classify_failure(test["name"], test["trace"])
-    
+    match = find_similar_guess(test["trace"], past_guesses)
+
+    if match:
+        result = {
+            "category": match["category"],
+            "confidence": match["confidence"],
+            "reason": match["reason"],
+        }
+        from_memory = True
+    else:
+        result = classify_failure(test["name"], test["trace"])
+        from_memory = False
+
+    log_guess(test["name"], test["trace"], result, from_memory)
+
     if result["confidence"] < 0.7:
         flag = "⚠️ NEEDS REVIEW"
     else:
         flag = ""
-    
-    print(f"{test['name']} {flag}")
+
+    memory_tag = "📋 FROM MEMORY" if from_memory else "🔵 NEW"
+
+    print(f"{test['name']} {flag} {memory_tag}")
     print(result)
     print("—" * 120)
