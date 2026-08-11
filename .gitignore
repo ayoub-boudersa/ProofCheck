@@ -2,3 +2,4 @@ venv/
 .env
 guesses.jsonl
 outcomes.jsonl
+report.json
