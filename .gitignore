@@ -1,2 +1,4 @@
 venv/
 .env
+guesses.jsonl
+outcomes.jsonl
