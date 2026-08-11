@@ -99,9 +99,9 @@ for test in failed_tests:
     else:
         result = classify_failure(test["name"], test["trace"])
         from_memory = False
+        log_guess(test["name"], test["trace"], result, from_memory)
 
-    log_guess(test["name"], test["trace"], result, from_memory)
-
+    
     if result["confidence"] < 0.7:
         flag = "⚠️ NEEDS REVIEW"
     else:
