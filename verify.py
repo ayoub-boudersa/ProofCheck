@@ -19,7 +19,8 @@ def main():
     unknown = sum(1 for o in outcomes if o["verdict"] == "unknown")
     no_data = sum(1 for o in outcomes if o["verdict"] == "no_data")
 
-    print(f"{confirmed} confirmed · {unknown} unknown · {no_data} no_data")
+    print("Don't take the tool's word for it — recomputed independently from raw logs:")
+    print(f"→ {confirmed} confirmed · {unknown} unknown · {no_data} no_data")
 
 
 if __name__ == "__main__":
