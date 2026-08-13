@@ -3,3 +3,4 @@ venv/
 guesses.jsonl
 outcomes.jsonl
 report.json
+__pycache__/
