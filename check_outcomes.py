@@ -88,13 +88,23 @@ def print_summary():
     print("\n--- Calibration Summary ---")
     MIN_SAMPLES = 20
 
+    total_confirmed = 0
+    total_unknown = 0
+    total_no_data = 0
+
     for cat, counts in categories.items():
         checkable = counts["confirmed"] + counts["unknown"]
         if checkable < MIN_SAMPLES:
-            print(f"{cat}: not enough data yet ({checkable} confident calls, need {MIN_SAMPLES}+)")
+            print(f"{cat}: not enough data yet ({checkable} confident calls, need {MIN_SAMPLES}+) — {counts['confirmed']} confirmed, {counts['unknown']} unknown, {counts['no_data']} no_data")
         else:
             accuracy = counts["confirmed"] / checkable * 100
             print(f"{cat}: {accuracy:.0f}% ({counts['confirmed']}/{checkable} confirmed)")
+
+        total_confirmed += counts["confirmed"]
+        total_unknown += counts["unknown"]
+        total_no_data += counts["no_data"]
+
+    print(f"\nTotals across all categories: {total_confirmed} confirmed · {total_unknown} unknown · {total_no_data} no_data")
 
 if __name__ == "__main__":
     main()
