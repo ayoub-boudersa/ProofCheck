@@ -1,3 +1,13 @@
+  
+  
+      # Note: this CI run is stateless — guesses.jsonl and outcomes.jsonl don't
+      # persist between runs on GitHub's disposable machines. That's expected:
+      # this tool is designed to run on a persistent local machine (see README),
+      # where guess history accumulates permanently across real runs. This
+      # workflow exists to prove the pipeline works end-to-end on every push,
+      # not to build long-term history.
+
+
 name: Triage Tool CI
 
 on:
