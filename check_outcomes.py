@@ -72,5 +72,30 @@ def main():
             print(f"{guess['test_name']} ({guess['category']}, {guess['confidence']}) -> {verdict.upper()}")
 
 
+def print_summary():
+    all_outcomes = []
+    with open(OUTCOMES_FILE) as f:
+        for line in f:
+            all_outcomes.append(json.loads(line))
+
+    categories = {}
+    for outcome in all_outcomes:
+        cat = outcome["category"]
+        categories.setdefault(cat, {"confirmed": 0, "unknown": 0, "no_data": 0, "total": 0})
+        categories[cat][outcome["verdict"]] += 1
+        categories[cat]["total"] += 1
+
+    print("\n--- Calibration Summary ---")
+    MIN_SAMPLES = 20
+
+    for cat, counts in categories.items():
+        checkable = counts["confirmed"] + counts["unknown"]
+        if checkable < MIN_SAMPLES:
+            print(f"{cat}: not enough data yet ({checkable} confident calls, need {MIN_SAMPLES}+)")
+        else:
+            accuracy = counts["confirmed"] / checkable * 100
+            print(f"{cat}: {accuracy:.0f}% ({counts['confirmed']}/{checkable} confirmed)")
+
 if __name__ == "__main__":
     main()
+    print_summary()
