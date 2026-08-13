@@ -23,6 +23,7 @@ jobs:
 
       - name: Run tests and generate CTRF report
         run: pytest --ctrf report.json
+        continue-on-error: true
 
       - name: Classify failures
         env:
