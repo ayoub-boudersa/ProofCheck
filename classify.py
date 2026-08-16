@@ -103,11 +103,11 @@ for test in failed_tests:
 
     
     if result["confidence"] < 0.7:
-        flag = "⚠️ NEEDS REVIEW"
+        flag = "NEEDS REVIEW"
     else:
         flag = ""
 
-    memory_tag = "📋 FROM MEMORY" if from_memory else "🔵 NEW"
+    memory_tag = "FROM MEMORY" if from_memory else "NEW"
 
     print(f"{test['name']} {flag} {memory_tag}")
     print(result)
