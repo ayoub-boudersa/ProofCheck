@@ -21,10 +21,11 @@ def load_past_guesses():
     return past
 
 
-def find_similar_guess(trace, past_guesses, threshold=0.9):
+def find_similar_guess(test_name, trace, past_guesses, trace_threshold=0.9, name_threshold=0.9):
     for guess in past_guesses:
-        similarity = difflib.SequenceMatcher(None, trace, guess["trace"]).ratio()
-        if similarity >= threshold:
+        trace_similarity = difflib.SequenceMatcher(None, trace, guess["trace"]).ratio()
+        name_similarity = difflib.SequenceMatcher(None, test_name, guess["test_name"]).ratio()
+        if trace_similarity >= trace_threshold and name_similarity >= name_threshold:
             return guess
     return None
 
@@ -87,8 +88,7 @@ failed_tests = [t for t in data["results"]["tests"] if t["status"] == "failed"]
 past_guesses = load_past_guesses()
 
 for test in failed_tests:
-    match = find_similar_guess(test["trace"], past_guesses)
-
+    match = find_similar_guess(test["name"], test["trace"], past_guesses)
     if match:
         result = {
             "category": match["category"],
