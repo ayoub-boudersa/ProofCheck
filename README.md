@@ -34,8 +34,10 @@ Create a `.env` file with:
 ```
 LLM_PROVIDER=gemini
 GEMINI_API_KEY=your_key_here
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
 ```
-Supported providers: `gemini`, `openai`, `anthropic` — set the matching API key for whichever you choose.
+Supported providers: `gemini`, `openai`, `anthropic` — set the matching API key for whichever you choose, keep the others empty.
 
 "After cloning, cd into the repo folder before running any setup commands." — the wrong-folder trap, silent until pip install fails several steps later.
 A short Windows troubleshooting note, something like:
