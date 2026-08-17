@@ -22,6 +22,8 @@ telemetry.
 
 ## Setup
 
+**After cloning, make sure you `cd` into the repo folder before running any of the following commands** — `pip install` will fail with a confusing "file not found" error several steps later if you're still one level up.
+
 ```
 python -m venv venv
 venv\Scripts\Activate.ps1
@@ -32,6 +34,12 @@ Create a `.env` file with:
 ```
 GEMINI_API_KEY=your_key_here
 ```
+"After cloning, cd into the repo folder before running any setup commands." — the wrong-folder trap, silent until pip install fails several steps later.
+A short Windows troubleshooting note, something like:
+
+### Windows troubleshooting
+
+If `pip install` is blocked by Windows Smart App Control, or `python -m venv venv` hangs with no output, try:
 
 ## Usage
 
