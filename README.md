@@ -6,6 +6,13 @@ An AI test triage tool that doesn't just guess why your tests failed — it keep
 
 AI test triage tools tell you "90% confident this is a real bug" and never check afterward whether they were right. This tool does.
 
+## What leaves your machine
+
+Only one thing: the failure's test name and traceback, sent to the LLM API
+(Gemini, using the key you provide in `.env`) for classification. Nothing else
+— no source code beyond what's in the traceback, no data sent to us, no
+telemetry.
+
 ## How it works
 
 1. Your `pytest` suite runs and fails sometimes.
@@ -60,10 +67,6 @@ Don't take the tool's word for it — recomputed independently from raw logs:
 - **Open format.** Test data flows through CTRF, an open standard — nothing locked behind a proprietary format.
 - **Append-only logs.** `guesses.jsonl` and `outcomes.jsonl` are never edited or rewritten, only appended to — every guess and every outcome check is permanently recorded, which is what makes independent verification meaningful.
 - **Honest about limits.** The calibration summary refuses to show a percentage below 20 confident guesses per category, and says so plainly, instead of showing a misleading number from too little data.
-
-## Status
-
-Early prototype. Tested against a fake failure suite and a real, deliberately-modified fork of [PyGithub](https://github.com/PyGithub/PyGithub) to validate against real tracebacks with known ground truth.
 
 ## Real-world validation
 
