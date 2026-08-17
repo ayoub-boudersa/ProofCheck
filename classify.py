@@ -9,6 +9,7 @@ load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 GUESSES_FILE = "guesses.jsonl"
+STATS_FILE = "stats.json"
 
 
 def load_past_guesses():
@@ -41,6 +42,18 @@ def log_guess(test_name, trace, result, from_memory):
     }
     with open(GUESSES_FILE, "a") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def load_stats():
+    if not os.path.exists(STATS_FILE):
+        return {"new": 0, "from_memory": 0}
+    with open(STATS_FILE) as f:
+        return json.load(f)
+
+
+def save_stats(stats):
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f, indent=2)
 
 
 def classify_failure(test_name, trace):
@@ -86,9 +99,11 @@ with open("report.json") as f:
 failed_tests = [t for t in data["results"]["tests"] if t["status"] == "failed"]
 
 past_guesses = load_past_guesses()
+stats = load_stats()
 
 for test in failed_tests:
     match = find_similar_guess(test["name"], test["trace"], past_guesses)
+
     if match:
         result = {
             "category": match["category"],
@@ -96,12 +111,13 @@ for test in failed_tests:
             "reason": match["reason"],
         }
         from_memory = True
+        stats["from_memory"] += 1
     else:
         result = classify_failure(test["name"], test["trace"])
         from_memory = False
+        stats["new"] += 1
         log_guess(test["name"], test["trace"], result, from_memory)
 
-    
     if result["confidence"] < 0.7:
         flag = "NEEDS REVIEW"
     else:
@@ -112,3 +128,10 @@ for test in failed_tests:
     print(f"{test['name']} {flag} {memory_tag}")
     print(result)
     print("—" * 120)
+
+save_stats(stats)
+
+total = stats["new"] + stats["from_memory"]
+if total > 0:
+    hit_rate = stats["from_memory"] / total * 100
+    print(f"\nMemory hit rate (all-time): {stats['from_memory']}/{total} ({hit_rate:.0f}%)")
