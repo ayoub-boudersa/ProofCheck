@@ -65,6 +65,32 @@ Don't take the tool's word for it — recomputed independently from raw logs:
 
 Early prototype. Tested against a fake failure suite and a real, deliberately-modified fork of [PyGithub](https://github.com/PyGithub/PyGithub) to validate against real tracebacks with known ground truth.
 
+## Real-world validation
+
+Tested against two real codebases beyond the original fake suite: a fork of
+[PyGithub](https://github.com/PyGithub/PyGithub) with deliberately introduced,
+known-answer bugs, and a self-built 82-test WordPress E2E suite (Playwright +
+REST API) run against a live local WordPress install with real, naturally
+occurring failures.
+
+**What this surfaced:** one real, damaging bug in the classifier itself — the
+memory-matching logic was collapsing distinct test failures with similarly-shaped
+tracebacks into one shared, partly-wrong answer. Fixed by requiring both the
+traceback *and* the test name to match before reusing a prior guess.
+
+**Current numbers** (small sample, not yet statistically meaningful — the tool's
+own calibration guard agrees, and won't show a percentage until each category
+has 20+ confident guesses):
+
+- 24 confirmed · 19 unknown · 32 no_data, independently recomputed and matching
+  via `verify.py`
+- "Confirmed" means a guess's predicted resolution happened (e.g. a flagged bug
+  got fixed, a flaky test showed both a pass and a fail) — not that the original
+  label was necessarily correct. "Unknown" mostly means the underlying issue is
+  still open, not that the guess was wrong.
+- Memory hit-rate is being tracked going forward but doesn't have enough history
+  yet on genuinely novel failures to report meaningfully.
+
 ## CI
 
 GitHub Actions runs `pytest` + `classify.py` on every push to `main`. Note: guess history (`guesses.jsonl`, `outcomes.jsonl`) doesn't persist between CI runs — this tool is designed to run on a persistent local machine, where history accumulates permanently. CI here demonstrates the pipeline works end-to-end, not long-term memory.

@@ -4,3 +4,4 @@ guesses.jsonl
 outcomes.jsonl
 report.json
 __pycache__/
+stats.json
