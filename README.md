@@ -32,8 +32,11 @@ pip install -r requirements.txt
 
 Create a `.env` file with:
 ```
+LLM_PROVIDER=gemini
 GEMINI_API_KEY=your_key_here
 ```
+Supported providers: `gemini`, `openai`, `anthropic` — set the matching API key for whichever you choose.
+
 "After cloning, cd into the repo folder before running any setup commands." — the wrong-folder trap, silent until pip install fails several steps later.
 A short Windows troubleshooting note, something like:
 

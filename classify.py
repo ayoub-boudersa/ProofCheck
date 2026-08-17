@@ -2,14 +2,51 @@ import os
 import json
 import difflib
 from dotenv import load_dotenv
-from google import genai
 
 load_dotenv()
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").lower()
 
 GUESSES_FILE = "guesses.jsonl"
 STATS_FILE = "stats.json"
+
+
+def call_gemini(prompt):
+    from google import genai
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    response = client.models.generate_content(
+        model="gemini-flash-lite-latest",
+        contents=prompt
+    )
+    return response.text
+
+
+def call_openai(prompt):
+    from openai import OpenAI
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content
+
+
+def call_anthropic(prompt):
+    import anthropic
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    response = client.messages.create(
+        model="claude-3-5-haiku-latest",
+        max_tokens=300,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.content[0].text
+
+
+PROVIDERS = {
+    "gemini": call_gemini,
+    "openai": call_openai,
+    "anthropic": call_anthropic,
+}
 
 
 def load_past_guesses():
@@ -74,12 +111,11 @@ Respond with ONLY valid JSON in this exact shape, nothing else:
 - Avoid using exactly 1.0 or 0.0 for confidence — express genuine uncertainty, even on clear-cut cases.
 """
 
-    response = client.models.generate_content(
-        model="gemini-flash-lite-latest",
-        contents=prompt
-    )
+    call_fn = PROVIDERS.get(LLM_PROVIDER)
+    if call_fn is None:
+        return {"category": "unknown", "confidence": 0.0, "reason": f"Unknown LLM_PROVIDER: '{LLM_PROVIDER}'"}
 
-    raw_text = response.text.strip()
+    raw_text = call_fn(prompt).strip()
 
     if raw_text.startswith("```"):
         raw_text = raw_text.split("```")[1].strip()
