@@ -38,7 +38,7 @@ python verify.py
 ## Example output
 
 ```
-fake_suite/test_real_bug.py::test_cart_total
+suite/test_real_bug.py::test_cart_total
 {'category': 'real_bug', 'confidence': 0.89, 'reason': 'The function calculate_total returned 21 instead of the expected 20 for inputs 10 and 2, indicating an arithmetic or logic error in the code under test.'}
 ```
 
